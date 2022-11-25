@@ -6,7 +6,7 @@ const webpush = require('web-push')
 const app = express()
 app.use(cors())
 app.use(bodyParser.json())
-const port = 4000
+const port = process.env.PORT || 4000
 app.get('/api', (req, res) => res.send('Hello World!'))
 const dummyDb = { subscriptions: [] } //dummy in memory store
 
@@ -15,7 +15,17 @@ const saveToDatabase = async data => {
   // Here you should be writing your db logic to save it.
   dummyDb.subscriptions.push(data)
 }
-// The new /save-subscription endpoint
+
+app.get('/', async (req, res) => {
+  res.json({ message: 'live' })
+});
+
+app.post('/api/clear', async (req, res) => {
+  dummyDb.subscriptions = [];
+
+  res.json({ message: 'success' })
+});
+
 app.post('/api/save-subscription', async (req, res) => {
   const subscription = req.body
   await saveToDatabase({...subscription, id: Date.now()}) //Method to save the subscription to Database
@@ -23,7 +33,7 @@ app.post('/api/save-subscription', async (req, res) => {
 });
 
 app.get('/api/subscriptions', async (req, res) => {
-  res.json(dummyDb.subscriptions)
+  res.json(dummyDb.subscriptions.map(({id, info}) => ({id, info})))
 });
 
 const vapidKeys = {
@@ -68,4 +78,4 @@ app.post('/api/send-notification', (req, res) => {
   }))
   res.json({ message: 'message sent' })
 })
-app.listen(process.env.PORT || port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Example app listening on port ${port}!`))
