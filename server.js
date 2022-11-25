@@ -32,6 +32,14 @@ app.post('/api/save-subscription', async (req, res) => {
   res.json({ message: 'success' })
 });
 
+app.post('/api/remove-subscription', async (req, res) => {
+  const subscriptionToRemove = req.body;
+
+  dummyDb.subscriptions = dummyDb.subscriptions.filter(({subscription}) => JSON.stringify(subscription) !== JSON.stringify(subscriptionToRemove))
+
+  res.json({ message: 'success' })
+});
+
 app.get('/api/subscriptions', async (req, res) => {
   res.json(dummyDb.subscriptions.map(({id, info}) => ({id, info})))
 });
